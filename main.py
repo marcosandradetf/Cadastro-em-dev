@@ -1,6 +1,8 @@
 import utils as ut
 import random
-
+import pandas as pd
+import ccsv
+import os
 
 def main(db):
     while True:
@@ -30,9 +32,13 @@ def main(db):
                 if opt == "1":
                     data = ut.cadastro(len(db) + 1)
                     ut.imprime(data)
-                    db.append(data)
-                    ut.salvar(db)
+                    #db.append(data)
+
+                    db.loc[len(db)] = data
+                    ut.salvar(file_name, data)
+
                     ut.capturar_espaco(db)
+                        
                     break
                 elif opt == "2":
                     break
@@ -92,4 +98,13 @@ def main(db):
 dataset = []
 
 if __name__ == "__main__":
-    main(dataset)
+    file_name = 'banco_dados.csv'
+    caminho = os.path.join(os.getcwd(), file_name)
+
+    if os.path.exists(caminho):
+        dataset = ut.PD_dataframe(file_name)
+        main(dataset)
+    else:
+        ccsv.cria_csv()
+        dataset = ut.PD_dataframe(file_name)
+        main(dataset)
