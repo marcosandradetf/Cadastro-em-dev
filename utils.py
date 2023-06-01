@@ -1,5 +1,5 @@
-import msvcrt
-
+import pandas as pd
+import os
 
 def cadastro(id):
     print("\n\tCRIAR CADASTRO\n")
@@ -85,47 +85,73 @@ def front_cpf(cpf):
 
 
 def imprime(data):
-    print(
-        f"\n\t DADOS CADASTRADOS\
+    print(f"\n\t DADOS CADASTRADOS\
           \n\
           \nID: {data[0]}\
           \nNome: {data[1]}\
           \nIdade: {data[2]}\
           \nEmail: {data[3]}\
           \nCPF: {data[4]}\
-          \n"
-    )
+          \n")
+     
+def PD_dataframe(file_name):
+    bd = pd.read_csv(file_name, sep=',')
+    print(f'BANCO DE DADOS CARREGADO COM SUCESSO\
+          \nTOTAL DE REGISTROS: {len(bd)}')
+    
+    return bd
 
 
-def capturar_espaco(db):
-    print("Pressione <ESPACO> para cadastrar outro dado ou <ENTER> para continuar...")
-    while True:
-        tecla = msvcrt.getch().decode("utf-8")
-        if tecla == " ":
-            data = cadastro(len(db) + 1)
-            imprime(data)
-            db.append(data)
-            salvar(db)
-            print("Pressione <ESPACO> para cadastrar outro dado ou <ENTER> para continuar...")
-        else:
-            # main.main(db)
-            return False
-        
-def salvar(db):
+def salvar(file_name, data):
     salvar = input('\nCONFIRMAR CADASTRO:\
                    \n\
                    \n\t1 - Sim\
                    \n\t2 - Cancelar\
                    \n')
-    
+
     if salvar == '1':
-        salvarDados(db)
+        salvarDados(file_name, data)
         print("\nDADOS CADASTRADOS COM SUCESSO!")
     else:
         print('CADASTRO CANCELADO PELO USUARIO!')
 
-def salvarDados(db):
-    arquivo = open('banco_dados.csv', 'a')
-    for l in db:
-        banco = f"{l[0]},{l[1]},{l[2]},{l[3]},{l[4]}\n"
+
+def salvarDados(file_name, data):
+    with open(file_name, 'a') as arquivo:
+        banco = f"{data[0]},{data[1]},{data[2]},{data[3]},{data[4]}\n"
     arquivo.write(banco)
+
+def capturar_espaco(db):
+    print(
+        "Pressione <ESPACO> para cadastrar outro dado ou <ENTER> para continuar..."
+    )
+
+    def getch():
+        if os.name == 'nt':  # Verifica se o sistema operacional é Windows
+            import msvcrt
+            return msvcrt.getch().decode("utf-8")
+        else:  # Caso contrário, assume que é um sistema operacional baseado em Unix
+            import tty, sys, termios
+            fd = sys.stdin.fileno()
+            old_settings = termios.tcgetattr(fd)
+            try:
+                tty.setraw(sys.stdin.fileno())
+                return sys.stdin.read(1)
+            finally:
+                termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+
+    tecla = getch()
+
+    while True:
+        if tecla == " ":
+            data = cadastro(len(db) + 1)
+            imprime(data)
+            db.append(data)
+            salvar(db)
+            print(
+                "Pressione <ESPACO> para cadastrar outro dado ou <ENTER> para continuar..."
+            )
+
+        else:
+            # main.main(db)
+            return False
